@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HttpWebRequestWrapper.LowLevel</name>
+    </assembly>
+    <members>
+        <member name="T:HttpWebRequestWrapper.HttpWebRequestWrapper">
+            <summary>
+            Wraps <see cref="T:System.Net.HttpWebRequest"/> as a public object with a public constructor.
+            Use this class to create mocks that can stand in as <see cref="T:System.Net.HttpWebRequest"/>s.
+            </summary>
+            <remarks>
+            Inheritance will need to be changed to <see cref="T:System.Net.HttpWebRequest"/> in IL, compiler
+            wont compile it because <see cref="T:System.Net.HttpWebRequest"/>'s public parameterless constructor
+            is marked obsolete.
+            </remarks>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapper.#ctor(System.Uri)">
+            <summary>
+            
+            </summary>
+            <param name="uri"></param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInitializer.Initialize(HttpWebRequestWrapper.HttpWebRequestWrapper,System.Uri)">
+            <summary>
+            Simulate <see cref="T:System.Net.HttpWebRequest"/>'s constructor for <paramref name="wrapper"/> 
+            so that <paramref name="wrapper"/> is correctly initialized and can function as a 
+            <see cref="T:System.Net.HttpWebRequest"/>:
+            1) Create a new HttpRequestCreator using reflection/activation.
+               We can't rely on <see cref="M:System.Net.WebRequest.Create(System.Uri)"/>, it's probably already 
+               been overloaded via <see cref="M:System.Net.WebRequest.RegisterPrefix(System.String,System.Net.IWebRequestCreate)"/>, so it's necessary to
+               create the HttpRequestCreator here.
+            2) Use the HttpRequestCreator to create a new <see cref="T:System.Net.HttpWebRequest"/>
+            3) Use reflection to copy the various fields that were initialized in the 
+               <see cref="T:System.Net.HttpWebRequest"/> to <paramref name="wrapper"/>
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.ReflectionExtensions">
+            <summary>
+            Helper methods for manipulating objects using reflection
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.ReflectionExtensions.CopyFieldFrom(System.Object,System.String,System.Object)">
+            <summary>
+            Uses reflection to load the value of field <paramref name="fieldName"/>
+            from <paramref name="from"/> and then uses the value to set the same
+            field on <paramref name="to"/>.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.ReflectionExtensions.SetField``1(``0,System.String,System.Object)">
+            <summary>
+            Uses reflection to set a (private) field <paramref name="fieldName"/>
+            on <paramref name="o"/>.
+            </summary>
+            <returns>
+            Returns <paramref name="o"/> so that this method can be called
+            fluently
+            </returns>
+        </member>
+        <member name="M:HttpWebRequestWrapper.ReflectionExtensions.CopyPropertyFromIfExists(System.Object,System.String,System.Object)">
+            <summary>
+            Uses reflection to load the value of property <paramref name="propertyName"/>
+            from <paramref name="from"/> and then uses the value to set the same
+            property on <paramref name="to"/>.
+            </summary>
+        </member>
+    </members>
+</doc>

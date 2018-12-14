@@ -1,0 +1,1063 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HttpWebRequestWrapper.35</name>
+    </assembly>
+    <members>
+        <member name="T:HttpWebRequestWrapper.Extensions.RecordedRequestExtensions">
+            <summary>
+            Helper methods for working with <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>s
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Extensions.RecordedRequestExtensions.TryGetResponseException(HttpWebRequestWrapper.Recording.RecordedRequest,System.Exception@)">
+            <summary>
+            Examines <paramref name="request"/> and if <see cref="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseException"/>
+            is populated, creates a new strongly typed exception based on the data in <paramref name="request"/>
+            and sets <paramref name="recordedException"/>.
+            <para />
+            If <see cref="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseException"/> is null, then <paramref name="recordedException"/>
+            is set to null and this returns <c>false</c>.
+            <para />
+            This method can activate any exception type as long as it has a constructor that takes a single
+            string parameter.
+            <para />
+            However, there is special handling for <see cref="T:System.Net.WebException"/>s.  If <see cref="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseBody"/>
+            and the other Response properties are set, then this data will be used to set <see cref="P:System.Net.WebException.Response"/>.
+            </summary>
+            <returns>
+            <c>true</c> if <paramref name="request"/> has a <see cref="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseException"/>,
+            indicating <paramref name="recordedException"/> has been populated.  <c>false</c> otherwise.
+            </returns>
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebRequestWrapperDelegateCreator">
+            <summary>
+            Helper component that supports just-in-time selection of a 
+            <see cref="T:System.Net.IWebRequestCreate"/> based on the requested <see cref="T:System.Uri"/>.
+            <para />
+            This is only anticipated to be useful when writing BDD style
+            tests that cover a large application surface area - where the system
+            might be making calls to two different api endpoints and it is helpful to 
+            have requests be routed to different <see cref="T:System.Net.IWebRequestCreate"/>s 
+            (ie <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>) based on url.
+            <para />
+            For example, requests to http://api1/ could go to one Interceptor with a specific
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/> and playback behavior and requests to http://api2/
+            could go to a different Interceptor with its own <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>
+            and different playback behavior. 
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperDelegateCreator.#ctor(System.Func{System.Uri,System.Net.IWebRequestCreate})">
+            <summary>
+            Helper component that supports just-in-time selection of a 
+            <see cref="T:System.Net.IWebRequestCreate"/> based on the requested <see cref="T:System.Uri"/>
+            via <paramref name="creatorSelector"/>.
+            <para />
+            This is only anticipated to be useful when writing BDD style
+            tests that cover a large application surface area - where the system
+            might be making calls to two different api endpoints and it is helpful to 
+            have requests be routed to different <see cref="T:System.Net.IWebRequestCreate"/>s 
+            (ie <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>) based on url.
+            <para />
+            For example, requests to http://api1/ could go to one Interceptor with a specific
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/> and playback behavior and requests to http://api2/
+            could go to a different Interceptor with its own <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>
+            and different playback behavior. 
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperDelegateCreator.Create(System.Uri)">
+            <inheritdoc />
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor">
+            <summary>
+            Specialized <see cref="T:System.Net.HttpWebRequest"/> that intercepts network traffic and instead returns 
+            programatically built <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            This class is primarily intended to be used within tests to support creating reliable and consistent
+            test mocks for application code that requires making network calls.
+            <para />
+            It's not recommended to use this class directly, instead use a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>
+            and <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>.
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> for more information.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor.#ctor(System.Uri,System.Func{HttpWebRequestWrapper.InterceptedRequest,System.Net.HttpWebResponse})">
+            <summary>
+            Creates a new <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> for <paramref name="uri"/>.
+            Instead of performing network io, will instead use <paramref name="responseCreator"/> to generate
+            the <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> for more information.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor.BeginGetRequestStream(System.AsyncCallback,System.Object)">
+            <inheritdoc />
+            <remarks>
+            This override is very important.  It greatly 
+            speeds up execution during interception when an async
+            caller (ie HttpClient) wants to GetRequestStream.
+            <para />
+            Enabling this override was also found to be the solution for
+            https://github.com/ppittle/HttpWebRequestWrapper/issues/21
+            where the 3rd HttpClient.PostAsync call would stall here.
+            </remarks>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor.GetRequestStream">
+            <inheritdoc />
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor.EndGetRequestStream(System.IAsyncResult)">
+            <inheritdoc />
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor.GetResponse">
+            <inheritdoc />
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor.BeginGetResponse(System.AsyncCallback,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor.EndGetResponse(System.IAsyncResult)">
+            <inheritdoc />
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator">
+            <summary>
+            <see cref="T:System.Net.IWebRequestCreate"/> for <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> - a 
+            specialized <see cref="T:System.Net.HttpWebRequest"/> that intercepts http traffic and instead returns 
+            programatically built <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            This class is primarily intended to be used within tests to support creating reliable and consistent
+            test mocks for application code that requires making network calls.
+            <para />
+            This class is meant to be used with <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>.
+            The result of <see cref="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator.Create(System.Uri)"/> can be safely cast to a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/>.
+            <para />
+            See documentation on one of the constructors for more information.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator.#ctor(System.Func{HttpWebRequestWrapper.InterceptedRequest,System.Net.HttpWebResponse})">
+            <summary>
+            Creates a <see cref="T:System.Net.IWebRequestCreate"/> for <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> - a 
+            specialized <see cref="T:System.Net.HttpWebRequest"/> that intercepts network traffic and instead returns 
+            programatically built <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            Use <paramref name="responseCreator"/> to control building a <see cref="T:System.Net.HttpWebResponse"/> to return in response
+            to a <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/>.  It's highly recommended to use either <see cref="P:HttpWebRequestWrapper.InterceptedRequest.HttpWebResponseCreator"/>
+            or <see cref="T:HttpWebRequestWrapper.HttpWebResponseCreator"/> to build the <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            You can use <see cref="P:HttpWebRequestWrapper.InterceptedRequest.PassThroughResponse"/> to return a live response if you want to return
+            the live response.
+            </summary>
+            <param name="responseCreator">
+            Function to control building a <see cref="T:System.Net.HttpWebResponse"/> to return in response
+            to a <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/>.  It's highly recommended to use either <see cref="P:HttpWebRequestWrapper.InterceptedRequest.HttpWebResponseCreator"/>
+            or <see cref="T:HttpWebRequestWrapper.HttpWebResponseCreator"/> to build the <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            You can use <see cref="P:HttpWebRequestWrapper.InterceptedRequest.PassThroughResponse"/> to return a live response if you want to return
+            the live response.
+            </param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator.#ctor(HttpWebRequestWrapper.IInterceptorRequestBuilder)">
+            <summary>
+            Creates a <see cref="T:System.Net.IWebRequestCreate"/> for <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> - a 
+            specialized <see cref="T:System.Net.HttpWebRequest"/> that intercepts network traffic and instead returns 
+            programatically built <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            Building of <see cref="T:System.Net.HttpWebResponse"/>s is delegated to <paramref name="interceptorRequestBuilder"/>.
+            <para /> 
+            You can implement your own <see cref="T:HttpWebRequestWrapper.IInterceptorRequestBuilder"/> or use 
+            <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> in conjunction with a 
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>.  You can use <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> to create 
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>s.
+            </summary>
+            <param name="interceptorRequestBuilder">
+            Instance of a <see cref="T:HttpWebRequestWrapper.IInterceptorRequestBuilder"/> that will control building <see cref="T:System.Net.HttpWebResponse"/>s.
+            <para /> 
+            Implement your own or use <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> in conjunction with a 
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>.  You can use <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> to create 
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>s.
+            </param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator.Create(System.Uri)">
+            <inheritdoc />
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder">
+            <summary>
+            Specialized <see cref="T:System.Net.HttpWebRequest"/> that records all request and response traffic to
+            <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.RecordedRequests"/> or a <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>.
+            <para />
+            Use this class to record complex http traffic generated by your application into a <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>,
+            then serialize and save/embed the <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/> and use a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>
+            and <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> to play back the <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/> in Unit or BDD tests.
+            <para />
+            It's not recommended to use this class directly, instead use a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>
+            and <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator"/>.
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator"/> for more information.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.RecordedRequests">
+            <summary>
+            Collection of <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>s collected during the 
+            life time of this <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/>.
+            <para />
+            Records request method, url, headers and payload as well as the response
+            status code, headers and body.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.#ctor(System.Uri)">
+            <summary>
+            Creates a new <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> for <paramref name="uri"/>.
+            The request and response details wil be recorded to <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.RecordedRequests"/>.
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> for more information.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.#ctor(HttpWebRequestWrapper.Recording.RecordingSession,System.Uri)">
+            <summary>
+            Creates a new <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> for <paramref name="uri"/>.
+            The request and response details wil be recorded to <paramref name="recordingSession"/>.
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> for more information.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.GetRequestStream">
+            <inheritdoc />
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.EndGetRequestStream(System.IAsyncResult)">
+            <inheritdoc />
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.EndGetResponse(System.IAsyncResult)">
+            <inheritdoc />
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder.GetResponse">
+            <inheritdoc />
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator">
+            <summary>
+            <see cref="T:System.Net.IWebRequestCreate"/> for <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> - a 
+            specialized <see cref="T:System.Net.HttpWebRequest"/> that records http requests and responses.
+            <para />
+            Use this class to record complex http traffic generated by your application
+            into <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/>, then serialize and save/embed 
+            <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/> and use a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>
+            and <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> to play back 
+            <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/> in Unit or BDD tests.
+            <para />
+            This class is meant to be used with <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>.
+            The result of <see cref="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.Create(System.Uri)"/> can be safely cast to a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/>.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession">
+            <summary>
+            Collection of <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>s collected by
+            the <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/>s created by this <see cref="T:System.Net.IWebRequestCreate"/>.
+            <para />
+            Records request method, url, headers and payload as well as the response
+            status code, headers and body.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.#ctor">
+            <summary>
+            Creates a <see cref="T:System.Net.IWebRequestCreate"/> for <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> - a 
+            specialized <see cref="T:System.Net.HttpWebRequest"/> that records http requests and responses.
+            <para />
+            Use this class to record complex http traffic generated by your application
+            into <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/>, then serialize and save/embed 
+            <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/> and use a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>
+            and <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> to play back 
+            <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/> in Unit or BDD tests.
+            <para />
+            This class is meant to be used with <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>.
+            The result of <see cref="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.Create(System.Uri)"/> can be safely cast to a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/>.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.#ctor(HttpWebRequestWrapper.Recording.RecordingSession)">
+            <summary>
+            Creates a <see cref="T:System.Net.IWebRequestCreate"/> for <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> - a 
+            specialized <see cref="T:System.Net.HttpWebRequest"/> that records http requests and responses.
+            <para />
+            Use this class to record complex http traffic generated by your application
+            into <paramref name="recordingSession"/>, then serialize and save/embed 
+            <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/> and use a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>
+            and <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> to play back 
+            <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/> in Unit or BDD tests.
+            <para />
+            This class is meant to be used with <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>.
+            The result of <see cref="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.Create(System.Uri)"/> can be safely cast to a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/>.
+            </summary>
+            <param name="recordingSession">
+            Pass in a reference to an existing <see cref="P:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.RecordingSession"/>
+            </param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator.Create(System.Uri)">
+            <inheritdoc/>
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession">
+            <summary>
+            Replaces the default <see cref="T:System.Net.IWebRequestCreate"/> for "http://" and 
+            "https:// urls with a custom <see cref="T:System.Net.IWebRequestCreate"/>, such as 
+            <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> or <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator"/>.
+            <para />
+            After creating a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>, any code that uses 
+            <see cref="M:System.Net.WebRequest.Create(System.Uri)"/> will receive a custom <see cref="T:System.Net.HttpWebRequest"/>
+            built by the passed <see cref="T:System.Net.IWebRequestCreate"/>.
+            <para />
+            Calling <see cref="M:HttpWebRequestWrapper.HttpWebRequestWrapperSession.Dispose"/> will reset the <see cref="M:WebRequest.PrefixList"/>; restoring
+            default behavior.
+            <para />
+            NOTE: This class does not support concurrency.  It relies on manipulating a static field
+            (<see cref="M:WebRequest.PrefixList"/>).  You can only create one Session at a time for a given
+            App Domain.  However, you can run concurrent code within the Session.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperSession.#ctor(System.Net.IWebRequestCreate)">
+            <summary>
+            Replaces the default <see cref="T:System.Net.IWebRequestCreate"/> for "http://" and 
+            "https:// urls with a custom <see cref="T:System.Net.IWebRequestCreate"/>, such as 
+            <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> or <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator"/>.
+            <para />
+            After creating a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperSession"/>, any code that uses 
+            <see cref="M:System.Net.WebRequest.Create(System.Uri)"/> will receive a custom <see cref="T:System.Net.HttpWebRequest"/>
+            built by <paramref name="httpRequestCreator"/>.
+            <para />
+            Calling <see cref="M:HttpWebRequestWrapper.HttpWebRequestWrapperSession.Dispose"/> will reset the <see cref="M:WebRequest.PrefixList"/>; restoring
+            default behavior.
+            <para />
+            NOTE: This class does not support concurrency.  It relies on manipulating a static field
+            (<see cref="M:WebRequest.PrefixList"/>).  You can only create one Session at a time for a given
+            App Domain.
+            </summary>
+            <param name="httpRequestCreator">
+            A custom <see cref="T:System.Net.IWebRequestCreate"/> that will be used to build <see cref="T:System.Net.HttpWebRequest"/>s
+            when ever <see cref="M:System.Net.WebRequest.Create(System.Uri)"/> is called in application code.  May I suggest using 
+            a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>.
+            </param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebRequestWrapperSession.Dispose">
+            <summary>
+            Reset the <see cref="M:WebRequest.PrefixList"/>; restoring
+            default behavior.
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator">
+            <summary>
+            Helper on top of <see cref="T:HttpWebRequestWrapper.HttpWebResponseCreator"/> that 
+            pre-populates <see cref="F:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator._responseUri"/>, <see cref="F:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator._method"/> 
+            and <see cref="F:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator._automaticDecompression"/> when building <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            Use these methods to build a real functioning <see cref="T:System.Net.HttpWebResponse"/>
+            without having to deal with the reflection head-aches of doing it manually.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator.#ctor(System.Uri,System.String,System.Net.DecompressionMethods)">
+            <summary>
+            Creates a new <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>
+            and saves <paramref name="responseUri"/> and <paramref name="method"/>
+            so they can be used when building <see cref="T:System.Net.HttpWebResponse"/>s, that way
+            those data points don't have to be provided in a Create method.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator.Create(System.String,System.Net.HttpStatusCode,System.Net.WebHeaderCollection)">
+            <summary>
+            Create a new <see cref="T:System.Net.HttpWebResponse"/>
+            such that <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>
+            returns a stream containing <paramref name="responseBody"/>.
+            </summary>
+            <param name="responseBody">
+            Text that <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/> will return.
+            </param>
+            <param name="statusCode">
+            OPTIONAL: Sets <see cref="P:System.Net.HttpWebResponse.StatusCode"/>. 
+            Defaults to <see cref="F:System.Net.HttpStatusCode.OK"/>.
+            </param>
+            <param name="responseHeaders">
+            OPTIONAL: Set <see cref="P:System.Net.HttpWebResponse.Headers"/>.
+            Defaults to an empty <see cref="T:System.Net.WebHeaderCollection"/>
+            <para />
+            Use this to also set Cookies via <see cref="F:System.Net.HttpResponseHeader.SetCookie"/>
+            </param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator.Create(System.IO.Stream,System.Net.HttpStatusCode,System.Net.WebHeaderCollection,System.Nullable{System.Net.DecompressionMethods},System.Nullable{System.Int64})">
+            <summary>
+            Create a new <see cref="T:System.Net.HttpWebResponse"/>
+            such that <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>
+            returns <paramref name="responseStream"/>.
+            </summary>
+            <param name="responseStream">
+            Sets <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>
+            </param>
+            <param name="statusCode">
+            OPTIONAL: Sets <see cref="P:System.Net.HttpWebResponse.StatusCode"/>. 
+            Defaults to <see cref="F:System.Net.HttpStatusCode.OK"/>.
+            </param>
+            <param name="responseHeaders">
+            OPTIONAL: Set <see cref="P:System.Net.HttpWebResponse.Headers"/>.
+            Defaults to an empty <see cref="T:System.Net.WebHeaderCollection"/>
+            <para />
+            Use this to also set Cookies via <see cref="F:System.Net.HttpResponseHeader.SetCookie"/>
+            </param>
+            <param name="decompressionMethod">
+            OPTIONAL: Controls if <see cref="T:System.Net.HttpWebResponse"/> will decompress
+            <paramref name="responseStream"/> in its constructor.  
+            Default is <see cref="F:System.Net.DecompressionMethods.None"/>
+            </param>
+            <param name="contentLength">
+            OPTIONAL: Set/override <see cref="P:System.Net.HttpWebResponse.ContentLength"/>.
+            If this is null, I'll just pull the length from <paramref name="responseStream"/>,
+            thus this is necessary to set if <paramref name="responseStream"/> doesn't support
+            getting its length
+            </param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator.Create(System.Net.HttpStatusCode,System.IO.Stream,System.Net.WebHeaderCollection,System.Nullable{System.Net.DecompressionMethods},System.String,System.Nullable{System.Int64},System.String,System.Boolean,System.Boolean,System.Boolean,System.String)">
+            <summary>
+            Lowest-level Creator of a <see cref="T:System.Net.HttpWebResponse"/> - full 
+            control over setting every parameter that can be passed into <see cref="T:System.Net.HttpWebResponse"/>'s
+            constructor, except <see cref="F:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator._responseUri"/> and <see cref="F:HttpWebRequestWrapper.HttpWebResponseInterceptorCreator._method"/> which were provided
+            in the constructor.  Use 
+            <see cref="M:HttpWebRequestWrapper.HttpWebResponseCreator.Create(System.Uri,System.String,System.Net.HttpStatusCode,System.IO.Stream,System.Net.WebHeaderCollection,System.Net.DecompressionMethods,System.String,System.Nullable{System.Int64},System.String,System.Boolean,System.Boolean,System.Boolean,System.String)"/>
+            if you need to set those as well
+            </summary>
+            <param name="statusCode">
+            Sets <see cref="P:System.Net.HttpWebResponse.StatusCode"/>
+            </param>
+            <param name="responseStream">
+            Sets <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>
+            </param>
+            <param name="responseHeaders">
+            Sets <see cref="P:System.Net.HttpWebResponse.Headers"/>.
+            Use this to also set Cookies via <see cref="F:System.Net.HttpResponseHeader.SetCookie"/>.
+            </param>
+            <param name="decompressionMethod">
+            OPTIONAL: Controls if <see cref="T:System.Net.HttpWebResponse"/> will decompress
+            <paramref name="responseStream"/> in its constructor.  
+            Default is <see cref="F:System.Net.DecompressionMethods.None"/>
+            </param>
+            <param name="mediaType">
+            OPTIONAL:  If <see cref="P:System.Net.HttpWebRequest.MediaType"/> is set, you
+            should probably pass that value in here so the correct 
+            <see cref="P:System.Net.HttpWebResponse.ContentType"/>  response header is processed
+            and set.
+            Default is <c>null</c>
+            </param>
+            <param name="contentLength">
+            OPTIONAL: Set/override <see cref="P:System.Net.HttpWebResponse.ContentLength"/>.
+            If this is null, I'll just pull the length from <paramref name="responseStream"/>,
+            thus this is necessary to set if <paramref name="responseStream"/> doesn't support
+            getting its length
+            </param>
+            <param name="statusDescription">
+            OPTIONAL: Set <see cref="P:System.Net.HttpWebResponse.StatusDescription"/>.
+            Default is <c>null</c>
+            </param>
+            <param name="isVersionHttp11">
+            OPTIONAL: Set <see cref="P:System.Net.HttpWebResponse.ProtocolVersion"/>
+            Default is <c>true</c>
+            </param>
+            <param name="usesProxySemantics">
+            OPTIONAL: Influences HttpWebResponse.KeepAlive
+            but not really sure how.
+            Default is <c>false</c>.
+            </param>
+            <param name="isWebSocket">
+            OPTIONAL: Default is <c>false</c>
+            </param>
+            <param name="connectionGroupName">
+            OPTIONAL: Default is <c>null</c>
+            </param>
+        </member>
+        <member name="T:HttpWebRequestWrapper.HttpWebResponseCreator">
+            <summary>
+            Use these methods to build a real functioning <see cref="T:System.Net.HttpWebResponse"/>
+            without having to deal with the reflection head-aches of doing it manually.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebResponseCreator.Create(System.Uri,System.String,System.Net.HttpStatusCode,System.String,System.Net.WebHeaderCollection,System.Net.DecompressionMethods)">
+            <summary>
+            Create a new <see cref="T:System.Net.HttpWebResponse"/>
+            such that <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>
+            returns a stream containing <paramref name="responseBody"/>.
+            </summary>
+            <param name="responseUri">
+            Sets <see cref="P:System.Net.HttpWebResponse.ResponseUri"/>
+            </param>
+            <param name="method">
+            Sets <see cref="P:System.Net.HttpWebResponse.Method"/>
+            </param>
+            <param name="statusCode">
+            Sets <see cref="P:System.Net.HttpWebResponse.StatusCode"/>
+            </param>
+            <param name="responseBody">
+            Text that <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/> will return.
+            </param>
+            <param name="responseHeaders">
+            OPTIONAL: Set <see cref="P:System.Net.HttpWebResponse.Headers"/>.
+            Defaults to an empty <see cref="T:System.Net.WebHeaderCollection"/>
+            <para />
+            Use this to also set Cookies via <see cref="F:System.Net.HttpResponseHeader.SetCookie"/>
+            </param>
+            <param name="decompressionMethod">
+            OPTIONAL: Controls if <see cref="T:System.Net.HttpWebResponse"/> will decompress
+            <paramref name="responseBody"/> in its constructor.  
+            Default is <see cref="F:System.Net.DecompressionMethods.None"/>
+            </param>
+        </member>
+        <member name="M:HttpWebRequestWrapper.HttpWebResponseCreator.Create(System.Uri,System.String,System.Net.HttpStatusCode,System.IO.Stream,System.Net.WebHeaderCollection,System.Net.DecompressionMethods,System.String,System.Nullable{System.Int64},System.String,System.Boolean,System.Boolean,System.Boolean,System.String)">
+            <summary>
+            Lowest-level Creator of a <see cref="T:System.Net.HttpWebResponse"/> - full 
+            control over setting every parameter that can be passed into <see cref="T:System.Net.HttpWebResponse"/>'s
+            constructor.
+            </summary>
+            <param name="responseUri">
+            Sets <see cref="P:System.Net.HttpWebResponse.ResponseUri"/>
+            </param>
+            <param name="method">
+            Sets <see cref="P:System.Net.HttpWebResponse.Method"/>
+            </param>
+            <param name="statusCode">
+            Sets <see cref="P:System.Net.HttpWebResponse.StatusCode"/>
+            </param>
+            <param name="responseStream">
+            Sets <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>
+            </param>
+            <param name="responseHeaders">
+            Sets <see cref="P:System.Net.HttpWebResponse.Headers"/>.
+            Use this to also set Cookies via <see cref="F:System.Net.HttpResponseHeader.SetCookie"/>.
+            </param>
+            <param name="decompressionMethod">
+            OPTIONAL: Controls if <see cref="T:System.Net.HttpWebResponse"/> will decompress
+            <paramref name="responseStream"/> in its constructor.  
+            Default is <see cref="F:System.Net.DecompressionMethods.None"/>
+            </param>
+            <param name="mediaType">
+            OPTIONAL:  If <see cref="P:System.Net.HttpWebRequest.MediaType"/> is set, you
+            should probably pass that value in here so the correct 
+            <see cref="P:System.Net.HttpWebResponse.ContentType"/>  response header is processed
+            and set.
+            Default is <c>null</c>
+            </param>
+            <param name="contentLength">
+            OPTIONAL: Set/override <see cref="P:System.Net.HttpWebResponse.ContentLength"/>.
+            If this is null, I'll just pull the length from <paramref name="responseStream"/>,
+            thus this is necessary to set if <paramref name="responseStream"/> doesn't support
+            getting its length
+            </param>
+            <param name="statusDescription">
+            OPTIONAL: Set <see cref="P:System.Net.HttpWebResponse.StatusDescription"/>.
+            Default is <c>null</c>
+            </param>
+            <param name="isVersionHttp11">
+            OPTIONAL: Set <see cref="P:System.Net.HttpWebResponse.ProtocolVersion"/>
+            Default is <c>true</c>
+            </param>
+            <param name="usesProxySemantics">
+            OPTIONAL: Influences HttpWebResponse.KeepAlive
+            but not really sure how.
+            Default is <c>false</c>.
+            </param>
+            <param name="isWebSocket">
+            OPTIONAL: Default is <c>false</c>
+            </param>
+            <param name="connectionGroupName">
+            OPTIONAL: Default is <c>null</c>
+            </param>
+        </member>
+        <member name="T:HttpWebRequestWrapper.IInterceptorRequestBuilder">
+            <summary>
+            Companion class to <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> that controls
+            how to build <see cref="T:System.Net.HttpWebResponse"/>s for <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/>s.
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> for an example.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.IInterceptorRequestBuilder.BuildResponse(HttpWebRequestWrapper.InterceptedRequest)">
+            <summary>
+            Function that builds a <see cref="T:System.Net.HttpWebResponse"/> for <paramref name="interceptedRequest"/>.
+            <para />
+            See <see cref="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.BuildResponse(HttpWebRequestWrapper.InterceptedRequest)"/> for an example.
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.InterceptedRequest">
+            <summary>
+            Contains the data points collected by <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> 
+            and given to <see cref="T:HttpWebRequestWrapper.IInterceptorRequestBuilder"/> (or a Func) to build
+            <see cref="T:System.Net.HttpWebResponse"/>s.
+            <para />
+            Additionally contains <see cref="P:HttpWebRequestWrapper.InterceptedRequest.PassThroughResponse"/>, which when called will
+            allow the intercepted request to get a live response from the web server.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.InterceptedRequest.RequestPayload">
+            <summary>
+            Copy of <see cref="M:System.Net.HttpWebRequest.GetRequestStream"/> if 
+            any has been set.
+            <para />
+            Don't try and read this from <see cref="P:HttpWebRequestWrapper.InterceptedRequest.HttpWebRequest"/>, the request stream
+            has probably already been closed.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.InterceptedRequest.HttpWebRequest">
+            <summary>
+            The <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> that has been intercepted.
+            Use this to read <see cref="P:System.Net.HttpWebRequest.Headers"/>, etc
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.InterceptedRequest.HttpWebResponseCreator">
+            <summary>
+            Helper object for creating <see cref="T:System.Net.HttpWebResponse"/>s. It'll be preloaded
+            with <see cref="P:System.Net.HttpWebRequest.RequestUri"/> and <see cref="P:System.Net.HttpWebRequest.Method"/>.
+            <para />
+            You could also use <see cref="P:HttpWebRequestWrapper.InterceptedRequest.HttpWebResponseCreator"/> or use reflection yourself to build a <see cref="T:System.Net.HttpWebResponse"/>,
+            but this is a lot easier.
+            <para />
+            If you don't actually want to spoof the <see cref="T:System.Net.HttpWebResponse"/>, you can use
+            <see cref="P:HttpWebRequestWrapper.InterceptedRequest.PassThroughResponse"/> to get a live response.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.InterceptedRequest.PassThroughResponse">
+            <summary>
+            Delegate for generating a live response. This can be 
+            returned to <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> in the event
+            you don't want to intercept this request - you want it to go live.
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.Recording.RecordedHeaders">
+            <summary>
+            Helper class for dealing with <see cref="T:System.Net.WebHeaderCollection"/> - 
+            primarily here to support json serialization as <see cref="T:System.Net.WebHeaderCollection"/>
+            objects don't serialize correctly.
+            <para />
+            Supports two implicit conversions to/from <see cref="T:System.Net.WebHeaderCollection"/>.
+            <para />
+            Also has some equality methods that were useful when unit testing the 
+            <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapper"/> library.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedHeaders.op_Implicit(HttpWebRequestWrapper.Recording.RecordedHeaders)~System.Net.WebHeaderCollection">
+            <summary>
+            Implicit conversion from a <see cref="T:HttpWebRequestWrapper.Recording.RecordedHeaders"/> to a 
+            <see cref="T:System.Net.WebHeaderCollection"/>.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedHeaders.op_Implicit(System.Net.WebHeaderCollection)~HttpWebRequestWrapper.Recording.RecordedHeaders">
+            <summary>
+            Implicit conversion from a <see cref="T:HttpWebRequestWrapper.Recording.RecordedHeaders"/> to a 
+            <see cref="T:System.Net.WebHeaderCollection"/>.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedHeaders.Equals(HttpWebRequestWrapper.Recording.RecordedHeaders)">
+            <summary>
+            Performs an equality comparison with an external
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordedHeaders"/>.
+            <para />
+            Don't care about ordering, just make sure both dictionaries
+            contain every key, and they have the same array of strings for every
+            key.  All string comparisons are case sensitive.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedHeaders.Equals(System.Net.WebHeaderCollection)">
+            <summary>
+            Performs an equality comparison with an external
+            <see cref="T:System.Net.WebHeaderCollection"/> by casting <paramref name="other"/>
+            to a <see cref="T:HttpWebRequestWrapper.Recording.RecordedHeaders"/> and then using
+            <see cref="M:HttpWebRequestWrapper.Recording.RecordedHeaders.Equals(HttpWebRequestWrapper.Recording.RecordedHeaders)"/>
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.Recording.RecordedRequest">
+            <summary>
+            Request / Response data recorded by <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/>.  Can be played back
+            using <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> and <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/>.
+            <para />
+            Supports serialization to JSON!  Perfect for saving as an embedded resource in your test projects!
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> for more information.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.Method">
+            <summary>
+            Recorded <see cref="P:System.Net.HttpWebRequest.Method"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.Url">
+            <summary>
+            Recorded <see cref="P:System.Net.HttpWebRequest.RequestUri"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.RequestCookieContainer">
+            <summary>
+            Recorded <see cref="P:System.Net.HttpWebRequest.CookieContainer"/>
+            <para />
+            This is mostly exposed for convenience.  This data will also
+            be contained in <see cref="P:HttpWebRequestWrapper.Recording.RecordedRequest.RequestHeaders"/>.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.RequestHeaders">
+            <summary>
+            Recorded <see cref="P:System.Net.HttpWebRequest.Headers"/>
+            <para />
+            NOTE: From MS Documentation: 
+            https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.headers%28v=vs.110%29.aspx
+                You should not assume that the header values will remain unchanged, 
+                because Web servers and caches may change or add headers to a Web request.
+            <para />
+            <see cref="P:HttpWebRequestWrapper.Recording.RecordedRequest.RequestHeaders"/> are recorded *before* <see cref="M:System.Net.HttpWebRequest.GetResponse"/>
+            is called, so this might not be the same as <see cref="P:System.Net.HttpWebRequest.Headers"/>
+            after calling <see cref="M:System.Net.HttpWebRequest.GetResponse"/> 
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.RequestPayload">
+            <summary>
+            Recorded <see cref="M:System.Net.HttpWebRequest.GetRequestStream"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseBody">
+            <summary>
+            Recorded <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseHeaders">
+            <summary>
+            Recorded <see cref="P:System.Net.HttpWebResponse.Headers"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseStatusCode">
+            <summary>
+            Recorded <see cref="P:System.Net.HttpWebResponse.StatusCode"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseException">
+            <summary>
+            Recorded <see cref="T:System.Exception"/> information captured
+            during <see cref="M:System.Net.HttpWebRequest.GetResponse"/>.
+            <para />
+            If no exception was thrown, this will be null.
+            <para />
+            Use <see cref="M:HttpWebRequestWrapper.Extensions.RecordedRequestExtensions.TryGetResponseException(HttpWebRequestWrapper.Recording.RecordedRequest,System.Exception@)"/>
+            to convert this to a strongly typed exception instance.
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.Recording.RecordedResponseException">
+            <summary>
+            A specialized container for collection <see cref="T:System.Exception"/>s
+            recorded during a <see cref="M:System.Net.HttpWebRequest.GetResponse"/>.
+            <para/>
+            This collection is optimized for serialization, as unfortunately
+            <see cref="T:System.Exception"/> objects don't reliably support xml serialization.
+            <para />
+            NOTE:  Currently this object only supports capturing <see cref="P:HttpWebRequestWrapper.Recording.RecordedResponseException.Message"/>
+            for all exceptions and <see cref="P:HttpWebRequestWrapper.Recording.RecordedResponseException.WebExceptionStatus"/> for <see cref="T:System.Net.WebException"/>.
+            All other exception properties will be discarded.
+            <para />
+            See <see cref="M:HttpWebRequestWrapper.Extensions.RecordedRequestExtensions.TryGetResponseException(HttpWebRequestWrapper.Recording.RecordedRequest,System.Exception@)"/>
+            for information on how this object is consumer and converted back into 
+            an exception.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedResponseException.Message">
+            <summary>
+            <see cref="P:System.Exception.Message"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedResponseException.Type">
+            <summary>
+            <see cref="M:System.Exception.GetType"/>.  This is captured
+            so the correctly typed exception can be built from
+            this <see cref="T:HttpWebRequestWrapper.Recording.RecordedResponseException"/>.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedResponseException.WebExceptionStatus">
+            <summary>
+            <see cref="P:System.Net.WebException.Status"/>.
+            This will be null if <see cref="P:HttpWebRequestWrapper.Recording.RecordedResponseException.Type"/> is not
+            <see cref="T:System.Net.WebException"/>
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.Recording.RecordedStream">
+            <summary>
+            Specialized container for recording <see cref="M:System.Net.HttpWebRequest.GetRequestStream"/>
+            and <see cref="M:System.Net.HttpWebResponse.GetResponseStream"/>.  Examines content type/encoding
+            and if content reports to be text, stream is stored plain-text, otherwise, content
+            is stored base64.  This way binary request/responses can be recorded and serialized.
+            <para />
+            The effort is made to store plain text content as plain-text, as opposed to 
+            storing everything base64, so that when this class is serialized, it's easier
+            to read / modify recorded content.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream">
+            <summary>
+            Serialized stream.  If <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.IsEncoded"/> is true,
+            this is stored as a Base64 string, otherwise
+            stored plain text.
+            <para />
+            If you want to get the string content of this 
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordedStream"/> it's 
+            recommended to use <see cref="M:HttpWebRequestWrapper.Recording.RecordedStream.ToString"/> rather than
+            using <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> directly.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedStream.IsEncoded">
+            <summary>
+            Indicates if <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> is encoded.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedStream.IsGzippedCompressed">
+            <summary>
+            Indicates <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> should be GZip
+            compressed when <see cref="M:HttpWebRequestWrapper.Recording.RecordedStream.ToStream"/> is called.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordedStream.IsDeflateCompressed">
+            <summary>
+            Indicates <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> should
+            be compressed with the Deflate aglorithm when
+            <see cref="M:HttpWebRequestWrapper.Recording.RecordedStream.ToStream"/> is called. 
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedStream.#ctor">
+            <summary>
+            Creates an empty <see cref="T:HttpWebRequestWrapper.Recording.RecordedStream"/>.  
+            <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> is initialized to <see cref="F:System.String.Empty"/>
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedStream.#ctor(System.Byte[],System.Net.HttpWebRequest)">
+            <summary>
+            Creates a new <see cref="T:HttpWebRequestWrapper.Recording.RecordedStream"/> around
+            <paramref name="streamBytes"/>.
+            <para />
+            If <paramref name="request"/>'s <see cref="P:System.Net.HttpWebRequest.ContentType"/>
+            is empty or can be inferred to represent plain text then
+            <paramref name="streamBytes"/> is stored in 
+            <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> via <see cref="M:System.Text.UTF8Encoding.GetString(System.Byte[],System.Int32,System.Int32)"/>.
+            Otherwise, <paramref name="streamBytes"/> is stored as base64 string.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedStream.#ctor(System.Byte[],System.Net.HttpWebResponse)">
+            <summary>
+            Creates a new <see cref="T:HttpWebRequestWrapper.Recording.RecordedStream"/> around
+            <paramref name="streamBytes"/>.
+            <para />
+            If <paramref name="response"/>'s <see cref="P:System.Net.HttpWebResponse.ContentType"/>
+            is empty or can be inferred to represent plain text OR 
+            <see cref="P:System.Net.HttpWebResponse.CharacterSet"/> is "utf-8"
+            <paramref name="streamBytes"/> is stored in 
+            <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> via <see cref="M:System.Text.UTF8Encoding.GetString(System.Byte[],System.Int32,System.Int32)"/>.
+            Otherwise, <paramref name="streamBytes"/> is stored as base64 string.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedStream.ToStream">
+            <summary>
+            Builds a new <see cref="T:System.IO.MemoryStream"/> correctly
+            populated with the content of <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/>
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedStream.ToString">
+            <summary>
+            Returns the Stream content as to as close as a useable
+            string as possible.
+            <para />
+            Returns <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> un-encoded and 
+            un-compressed.  If <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> represents
+            binary content, this will not be useful.  However, if for some
+            reason <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> is string content but has
+            been marked <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.IsEncoded"/>, this will return a usable string. 
+            <para />
+            This is the preferred way of getting the Stream as a string.  It 
+            is inadvisable to inspect <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/> directly.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedStream.op_Implicit(System.String)~HttpWebRequestWrapper.Recording.RecordedStream">
+            <summary>
+            Builds a new <see cref="T:HttpWebRequestWrapper.Recording.RecordedStream"/> from <paramref name="textResponse"/>,
+            storing <paramref name="textResponse"/> as plain text in <see cref="P:HttpWebRequestWrapper.Recording.RecordedStream.SerializedStream"/>.
+            <para />
+            This makes it very easy to assign string text directly to <see cref="P:HttpWebRequestWrapper.Recording.RecordedRequest.ResponseBody"/>.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.Recording.RecordedStream.Equals(HttpWebRequestWrapper.Recording.RecordedStream)">
+            <summary>
+            Determines equality between <paramref name="other"/> and this
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordedStream"/>.  This allows comparing <see cref="T:HttpWebRequestWrapper.Recording.RecordedStream"/>s
+            easier for things like <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.MatchingAlgorithm"/>
+            as well as tests.
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.Recording.RecordingSession">
+            <summary>
+            Collection of <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>s.  
+            Record using <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> (created by <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator"/>)
+            and playback with <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> (created by 
+            <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator" /> and <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/>).
+            <para />
+            This class is perfect for serializing and adding as an embedded resource to your 
+            test projects!
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.Recording.RecordingSession.RecordedRequests">
+            <summary>
+            Collection of <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>s.  
+            Record using <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorder"/> (created by <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperRecorderCreator"/>)
+            and playback with <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptor"/> (created by 
+            <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator" /> and <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/>).
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.IO.ShadowCopyStream">
+            <summary>
+            <see cref="T:System.IO.Stream"/> decorator that writes to 
+            <see cref="P:HttpWebRequestWrapper.IO.ShadowCopyStream.ShadowCopy"/> as well as the decorated 
+            stream on all writes.
+            <para />
+            Necessary to support reading from streams that might
+            be closed by code you don't control, as is the case
+            with <see cref="M:System.Net.HttpWebRequest.GetRequestStream"/>
+            </summary>
+        </member>
+        <member name="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder">
+            <summary>
+            Manages playback of a <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/> for a <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/>
+            by inspecting <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/>, matching to a specific <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/>
+            and then building an appropriate <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            This class is designed to be extremely extensible.  See <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.MatchingAlgorithm"/>, 
+            <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedResultResponseBuilder"/>, <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/>, 
+            <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.AllowReplayingRecordedRequestsMultipleTimes"/>  and <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.OnMatch"/> for more
+            information on specific extensibility points.
+            <para />
+            See <see cref="T:HttpWebRequestWrapper.HttpWebRequestWrapperInterceptorCreator"/> for more information on plumbing.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests">
+            <summary>
+            Collection of <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>s used by <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.MatchingAlgorithm"/>
+            to match an incoming <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/> and build a <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            Ordering matters!!! <see cref="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.BuildResponse(HttpWebRequestWrapper.InterceptedRequest)"/> will pick the first <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/>
+            that the <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.MatchingAlgorithm"/> determines to be a match.
+            <para />
+            This is automatically set by the constructors based on the <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/>s
+            that are passed in.  
+            <para />
+            But you can manipulate this list at any time - helpful if you need dynamic control
+            over playback or testing error handling/retry behavior.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.#ctor(HttpWebRequestWrapper.Recording.RecordingSession[])">
+            <summary>
+            <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> that plays back
+            <paramref name="recordingSessions"/>!
+            <para />
+            Initializes <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/> to return a 404 response.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.#ctor(HttpWebRequestWrapper.RequestNotFoundBehavior,HttpWebRequestWrapper.Recording.RecordingSession[])">
+            <summary>
+            <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> that plays back
+            <paramref name="recordingSessions"/>!
+            <para />
+            Based on <paramref name="requestNotFoundBehavior"/>, either initializes <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/> 
+            to return a 404 response (<see cref="F:HttpWebRequestWrapper.RequestNotFoundBehavior.Return404"/>) or passes through the request
+            to get a live response (<see cref="F:HttpWebRequestWrapper.RequestNotFoundBehavior.PassThrough"/>).
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.#ctor(System.Func{HttpWebRequestWrapper.InterceptedRequest,System.Net.HttpWebResponse},HttpWebRequestWrapper.Recording.RecordingSession[])">
+            <summary>
+            <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> that plays back
+            <paramref name="recordingSessions"/>!
+            <para />
+            Use this constructor for fine-grained control over <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/>;
+            it's initialized with <paramref name="requestNotFoundResponseBuilder"/>.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.BuildResponse(HttpWebRequestWrapper.InterceptedRequest)">
+            <summary>
+            1. Use <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.MatchingAlgorithm"/> to find a match from <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/>.
+            <para />
+            2. Use either <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedResultResponseBuilder"/> or <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/>
+            to build a <see cref="T:System.Net.HttpWebResponse"/>.
+            <para />
+            3. Fire <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.OnMatch"/>
+            <para />
+            4. Honor <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.AllowReplayingRecordedRequestsMultipleTimes"/> and remove the matched
+            <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/> from <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/>
+            <para />
+            5. Return the <see cref="T:System.Net.HttpWebResponse"/>. aka Profit!
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.MatchingAlgorithm">
+            <summary>
+            Defines how to match a <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/> to a <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>.
+            <para />
+            Default is <see cref="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.DefaultMatchingAlgorithm(HttpWebRequestWrapper.InterceptedRequest,HttpWebRequestWrapper.Recording.RecordedRequest)"/> which matches on url, method, request payload and 
+            request headers.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedResultResponseBuilder">
+            <summary>
+            Defines how to build a <see cref="T:System.Net.HttpWebResponse"/> from a matched <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>.
+            <para/>
+            Default is <see cref="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.DefaultRecordedResultResponseBuilder(HttpWebRequestWrapper.Recording.RecordedRequest,HttpWebRequestWrapper.InterceptedRequest)"/>.
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder">
+            <summary>
+            Defines how to build a <see cref="T:System.Net.HttpWebResponse"/> if an <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/>
+            couldn't be matched to a <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>.
+            <para />
+            Default is <see cref="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.DefaultRequestNotFoundResponseBuilder(HttpWebRequestWrapper.InterceptedRequest,HttpWebRequestWrapper.RequestNotFoundBehavior)"/>
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.OnMatch">
+            <summary>
+            Callback fired immediately before returning the <see cref="T:System.Net.HttpWebResponse"/>.  Useful
+            if you want an auditing hook to verify a specific request was made, debug why a match
+            occurred, or build a request history.
+            <para />
+            NOTE: the <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/> property can be null if no match could
+            be found and we needed to use <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/> to 
+            build a response.
+            <para />
+            If the HttpWebResponse is null and the Exception is not null, then we either matched
+            on a <see cref="T:HttpWebRequestWrapper.Recording.RecordedResponseException"/>, or <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/>
+            wanted to bubble up an exception (ie <see cref="F:System.Net.WebExceptionStatus.NameResolutionFailure"/>).
+            </summary>
+        </member>
+        <member name="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.AllowReplayingRecordedRequestsMultipleTimes">
+            <summary>
+            Flag that indicates if a <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/> can be used multiple times by 
+            different <see cref="T:HttpWebRequestWrapper.InterceptedRequest"/>, as long as they match.
+            <para />
+            Setting this to false will remove a matched <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/> from 
+            <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/> so it can't be matched again.  This is useful for 
+            testing application retry behavior - set you <see cref="T:HttpWebRequestWrapper.Recording.RecordingSession"/> to first 
+            contain a 500 response and then contain the 200 to verify that your application retried
+            after getting the 500.
+            <para />
+            Default is true - <see cref="T:HttpWebRequestWrapper.Recording.RecordedRequest"/>s can be replayed multiple times.
+            </summary>
+        </member>
+        <member name="M:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.DefaultRequestNotFoundResponseBuilder(HttpWebRequestWrapper.InterceptedRequest,HttpWebRequestWrapper.RequestNotFoundBehavior)">
+            <remarks>
+            This is static so it can be referenced in constructor chaining
+            </remarks>
+        </member>
+        <member name="T:HttpWebRequestWrapper.RequestNotFoundBehavior">
+            <summary>
+            Enum for <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RequestNotFoundResponseBuilder"/> 
+            initialization.
+            </summary>
+        </member>
+        <member name="F:HttpWebRequestWrapper.RequestNotFoundBehavior.Return404">
+            <summary>
+            Indicate <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> should build a generic 
+            <see cref="F:System.Net.HttpStatusCode.NotFound"/> <see cref="T:System.Net.HttpWebResponse"/> if the intercepted request
+            can't be matched to <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/>.
+            </summary>
+        </member>
+        <member name="F:HttpWebRequestWrapper.RequestNotFoundBehavior.PassThrough">
+            <summary>
+            Indicate <see cref="T:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder"/> should 
+            return <see cref="P:HttpWebRequestWrapper.InterceptedRequest.PassThroughResponse"/>, allowing the request
+            to be sent to a live web server ff the intercepted request 
+            can't be matched to <see cref="P:HttpWebRequestWrapper.RecordingSessionInterceptorRequestBuilder.RecordedRequests"/>.
+            </summary>
+        </member>
+    </members>
+</doc>
