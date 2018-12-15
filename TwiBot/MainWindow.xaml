@@ -50,7 +50,7 @@
                 Grid.Row="2"
                 Content="add bots info"
                 Margin="5"
-                Click="MPtoWavAndRecover"/>
+                Click="btnAddBotInfo_Click"/>
             <Button HorizontalAlignment="Right"
                     Margin="5"
                     Background="Transparent"
@@ -59,6 +59,12 @@
                     Click="btnHelp_Mark_Click">
                 <Image Source="/Icons/question_mark.png" Width="15" Height="15"/>
             </Button>
+            <Button
+                Content="Downoad Request"
+                Click="btnRequest_Click"/>
+            <Button
+                Content="Get Code"
+                Click="btnGetCodeTest_Click"/>
         </StackPanel>
     </Grid>
 </Window>
