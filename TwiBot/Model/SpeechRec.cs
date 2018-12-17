@@ -50,9 +50,6 @@ namespace TwiBot.Model
                 }
                 catch (Exception ex)
                 {
-                    //handle exception      
-                    //...
-
                     break;
                 }
             }

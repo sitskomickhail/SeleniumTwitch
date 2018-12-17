@@ -17,7 +17,7 @@ namespace TwiBot
     public partial class MainWindow : Window
     {
         private const string twitchStr = "https://www.twitch.tv/";
-        private const string defPath = "E:\\audiofolder";
+        //private const string defPath = "E:\\audiofolder";
         private const string _urlPattern = @"(?<Protocol>\w+):\/\/(?<Domain>[\w@][\w.:@]+)\/?[\w\.?=%&=\-@/$,]*";
 
         private int _framePos;
@@ -92,26 +92,34 @@ namespace TwiBot
                     #endregion
 
                     Thread.Sleep(5102);
-                    
+
                     #region AUDIO_BUTTON__CLICK
                     try
                     {
                         _driver[i].SwitchTo().DefaultContent();
                         _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[9]);
+                        //builder.MoveToElement(_driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")),
+                        //            _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.X + 5,
+                        //            _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.Y + 5).Click();
+                        _framePos = 9;
                         _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Click();
                     }
                     catch (Exception)
                     {
-                        for (int j = 1; j < 10; j++)
+                        for (int j = 0; j < 10; j++)
                         {
                             bool check = false;
                             _driver[i].SwitchTo().DefaultContent();
                             try
                             {
                                 _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[j]);
+
+                                //builder.MoveToElement(_driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")),
+                                //     _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.X + 20,
+                                //     _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.Y + 20).Click();
                                 audButton = _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]"));
-                                _framePos = j;
                                 audButton.Click();
+                                _framePos = j;
                                 check = true;
                             }
                             catch (Exception) { }
@@ -120,41 +128,63 @@ namespace TwiBot
                         }
                     }
                     #endregion
+                    bool checkLinkTab = false;
+                    try { _driver[i].FindElement(By.ClassName("rc-audiochallenge-tdownload-link")).Click(); checkLinkTab = true; }
+                    catch (Exception) { Thread.Sleep(130000); }
 
-                    Thread.Sleep(130000);
-                    _driver[i].SwitchTo().DefaultContent();
-                    _driver[i].SwitchTo().Frame(_driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-element-container\"]/div/div/iframe")));
-                    _driver[i].FindElement(By.ClassName("recaptcha-checkbox-checkmark")).Click();
-                    Thread.Sleep(1500);
-
-                    #region AUDIO_BUTTON__DOWNLOAD
-                    try
+                    if (!checkLinkTab)
                     {
-                        _driver[i].SwitchTo().DefaultContent();
-                        _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[_framePos]);
-                        _driver[i].FindElement(By.ClassName("rc-audiochallenge-tdownload-link")).Click();
-                    }
-                    catch (Exception)
-                    {
-                        for (int j = 1; j < 10; j++)
+                        #region GO_SOLVE!
+                        while (true)
                         {
-                            bool check = false;
-                            _driver[i].SwitchTo().DefaultContent();
-
                             try
                             {
-                                _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[j]);
-                                downloadAudButton = _driver[i].FindElement(By.ClassName("rc-audiochallenge-tdownload-link"));
-                                downloadAudButton.Click();
-                                check = true;
+                                _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[_framePos]);
+                                Thread.Sleep(5000);
+                                continue;
                             }
-                            catch (Exception) { }
-                            if (check)
+                            catch
+                            {
+                                _driver[i].SwitchTo().DefaultContent();
+                                _driver[i].SwitchTo().Frame(_driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-element-container\"]/div/div/iframe")));
+                                _driver[i].FindElement(By.ClassName("recaptcha-checkbox-checkmark")).Click();
+                                Thread.Sleep(1500);
                                 break;
+                            }
                         }
+                        #endregion
+
+                        #region AUDIO_BUTTON__DOWNLOAD
+                        try
+                        {
+                            _driver[i].SwitchTo().DefaultContent();
+                            _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[9]);
+                            _driver[i].FindElement(By.ClassName("rc-audiochallenge-tdownload-link")).Click();
+                            _framePos = 9;
+                        }
+                        catch (Exception)
+                        {
+                            for (int j = 0; j < 10; j++)
+                            {
+                                bool check = false;
+                                _driver[i].SwitchTo().DefaultContent();
+
+                                try
+                                {
+                                    _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[j]);
+                                    downloadAudButton = _driver[i].FindElement(By.ClassName("rc-audiochallenge-tdownload-link"));
+                                    downloadAudButton.Click();
+                                    _framePos = j;
+                                    check = true;
+                                }
+                                catch (Exception) { }
+                                if (check)
+                                    break;
+                            }
+                        }
+                        #endregion
                     }
-                    #endregion
-                    
+
                     List<string> tabs = new List<string>(_driver[i].WindowHandles);
                     _driver[i].SwitchTo().Window(tabs[1]);
 
@@ -162,7 +192,7 @@ namespace TwiBot
                     DownloadRequest(_driver[i].Url);
                     GetCode(_driver[i]);
                     #endregion
-                    
+
                     _driver[i].SwitchTo().Window(tabs[0]);
 
                     #region CREATE_ANSWER
@@ -175,10 +205,12 @@ namespace TwiBot
 
                     int locationX = _driver[i].FindElement(By.Id("recaptcha-verify-button")).Location.X;
                     int locationY = _driver[i].FindElement(By.Id("recaptcha-verify-button")).Location.Y;
-                    builder.MoveToElement(_driver[i].FindElement(By.Id("recaptcha-verify-button")), locationX, locationY).Click();
+                    builder.MoveToElement(_driver[i].FindElement(By.Id("recaptcha-verify-button")), locationX + 7, locationY + 7).Click();
 
                     Thread.Sleep(4000);
-                    _driver[i].FindElement(By.Id("recaptcha-verify-button")).Click();
+                    //_driver[i].FindElement(By.Id("recaptcha-verify-button")).Click();
+
+                    SOLVE_CAPTCHA_SECOND_TIME(_driver[i]);
 
                     Thread.Sleep(3000);
                     _driver[i].SwitchTo().DefaultContent();
@@ -189,11 +221,11 @@ namespace TwiBot
                     //ss.SaveAsFile(@"D:\1\TEST\" + i.ToString() + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
                     i++;
 
-                    DirectoryInfo di = new DirectoryInfo(defPath);
-                    foreach (FileInfo file in di.GetFiles())
-                    {
-                        file.Delete();
-                    }
+                    //DirectoryInfo di = new DirectoryInfo(defPath);
+                    //foreach (FileInfo file in di.GetFiles())
+                    //{
+                    //    file.Delete();
+                    //}
                 }
             }
             else
@@ -201,6 +233,85 @@ namespace TwiBot
                 "Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
+        }
+
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        private void SOLVE_CAPTCHA_SECOND_TIME(IWebDriver driver)
+        {
+            Thread.Sleep(130000);
+
+            #region GO_SOLVE!
+            while (true)
+            {
+                try
+                {
+                    driver.SwitchTo().Frame(driver.FindElements(By.TagName("iframe"))[_framePos]);
+                    Thread.Sleep(5000);
+                    continue;
+                }
+                catch
+                {
+                    driver.SwitchTo().DefaultContent();
+                    driver.SwitchTo().Frame(driver.FindElement(By.XPath("//*[@id=\"recaptcha-element-container\"]/div/div/iframe")));
+                    driver.FindElement(By.ClassName("recaptcha-checkbox-checkmark")).Click();
+                    Thread.Sleep(1500);
+                    break;
+                }
+            }
+            #endregion
+
+            #region AUDIO_BUTTON__DOWNLOAD
+            try
+            {
+                driver.SwitchTo().DefaultContent();
+                driver.SwitchTo().Frame(driver.FindElements(By.TagName("iframe"))[9]);
+                driver.FindElement(By.ClassName("rc-audiochallenge-tdownload-link")).Click();
+                _framePos = 9;
+            }
+            catch (Exception)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    bool check = false;
+                    driver.SwitchTo().DefaultContent();
+
+                    try
+                    {
+                        driver.SwitchTo().Frame(driver.FindElements(By.TagName("iframe"))[j]);
+                        driver.FindElement(By.ClassName("rc-audiochallenge-tdownload-link")).Click();
+                        _framePos = j;
+                        check = true;
+                    }
+                    catch (Exception) { }
+                    if (check)
+                        break;
+                }
+            }
+            #endregion
+
+            List<string> tabs = new List<string>(driver.WindowHandles);
+            driver.SwitchTo().Window(tabs[2]);        
+
+            #region DOWNLOAD/GET_CODE
+            DownloadRequest(driver.Url);
+            GetCode(driver);
+            #endregion
+            
+            driver.SwitchTo().Window(tabs[0]);
+
+            #region CREATE_ANSWER
+            driver.SwitchTo().DefaultContent();
+            driver.SwitchTo().Frame(driver.FindElements(By.TagName("iframe"))[_framePos]);
+
+            IWebElement audioTB = driver.FindElement(By.Id("audio-response"));
+            audioTB.Clear();
+            ReCaptchaDetect.Type_Like_Human(audioTB, Clipboard.GetText());
+
+            Actions builder = new Actions(driver);
+            int locationX = driver.FindElement(By.Id("recaptcha-verify-button")).Location.X;
+            int locationY = driver.FindElement(By.Id("recaptcha-verify-button")).Location.Y;
+            builder.MoveToElement(driver.FindElement(By.Id("recaptcha-verify-button")), locationX + 7, locationY + 7).Click();
+            #endregion
         }
 
         private void btnAddBotInfo_Click(object sender, RoutedEventArgs e)
@@ -220,12 +331,12 @@ namespace TwiBot
                 item.Quit();
             }
         }
-        
+
         private void btnHelp_Mark_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Bot info:/nlogin:password:mail");
         }
-        
+
         private void GetCode(IWebDriver driver)
         {
             driver.Navigate().GoToUrl("https://realspeaker.net/");
@@ -246,7 +357,7 @@ namespace TwiBot
             Thread.Sleep(3000);
             driver.FindElement(By.XPath("//*[@id=\"app\"]/main/div/div[1]/div/div/span/div/nav/div/button/div")).Click();
         }
-        
+
         private void DownloadAudio(string url, IWebDriver driver)
         {
             driver.Navigate().GoToUrl("https://www.amoyshare.com/free-mp3-finder/");
@@ -259,10 +370,10 @@ namespace TwiBot
             driver.FindElement(By.XPath("//*[@id=\"commonFinder\"]/div[7]/div/div[3]/div[3]/div/ul/li[2]/a/div[2]")).Click();
             Thread.Sleep(8000);
         }
-        
+
         private void DownloadRequest(string url)
         {
-            HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(url);
+            HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(url);
             httpRequest.Method = WebRequestMethods.Http.Get;
             HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
             Stream httpResponseStream = httpResponse.GetResponseStream();
