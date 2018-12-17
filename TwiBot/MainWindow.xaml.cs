@@ -98,9 +98,6 @@ namespace TwiBot
                     {
                         _driver[i].SwitchTo().DefaultContent();
                         _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[9]);
-                        //builder.MoveToElement(_driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")),
-                        //            _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.X + 5,
-                        //            _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.Y + 5).Click();
                         _framePos = 9;
                         _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Click();
                     }
@@ -113,10 +110,6 @@ namespace TwiBot
                             try
                             {
                                 _driver[i].SwitchTo().Frame(_driver[i].FindElements(By.TagName("iframe"))[j]);
-
-                                //builder.MoveToElement(_driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")),
-                                //     _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.X + 20,
-                                //     _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]")).Location.Y + 20).Click();
                                 audButton = _driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-audio-button\"]"));
                                 audButton.Click();
                                 _framePos = j;
@@ -207,25 +200,16 @@ namespace TwiBot
                     int locationY = _driver[i].FindElement(By.Id("recaptcha-verify-button")).Location.Y;
                     builder.MoveToElement(_driver[i].FindElement(By.Id("recaptcha-verify-button")), locationX + 7, locationY + 7).Click();
 
-                    Thread.Sleep(4000);
-                    //_driver[i].FindElement(By.Id("recaptcha-verify-button")).Click();
-
+                    Thread.Sleep(2500);
                     SOLVE_CAPTCHA_SECOND_TIME(_driver[i]);
 
-                    Thread.Sleep(3000);
+                    Thread.Sleep(2500);
                     _driver[i].SwitchTo().DefaultContent();
-                    _driver[i].SwitchTo().Frame(_driver[i].FindElement(By.XPath("//*[@id=\"recaptcha-element-container\"]/div/div/iframe")));
-                    _driver[i].FindElement(By.XPath("/html/body/div[2]/div/div/div/div[1]/div/div/div[3]/div/button/span")).Click();
+                    _driver[i].FindElement(By.XPath("/html/body/div[2]/div/div/div/div[1]/div/div/div[3]/div/button")).Click(); MessageBox.Show("1");
                     #endregion
                     //Screenshot ss = ((ITakesScreenshot)_driver[i]).GetScreenshot();
                     //ss.SaveAsFile(@"D:\1\TEST\" + i.ToString() + ".jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
                     i++;
-
-                    //DirectoryInfo di = new DirectoryInfo(defPath);
-                    //foreach (FileInfo file in di.GetFiles())
-                    //{
-                    //    file.Delete();
-                    //}
                 }
             }
             else
@@ -235,7 +219,7 @@ namespace TwiBot
                 MessageBoxImage.Error);
         }
 
-        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         private void SOLVE_CAPTCHA_SECOND_TIME(IWebDriver driver)
         {
             Thread.Sleep(130000);
@@ -290,13 +274,13 @@ namespace TwiBot
             #endregion
 
             List<string> tabs = new List<string>(driver.WindowHandles);
-            driver.SwitchTo().Window(tabs[2]);        
+            driver.SwitchTo().Window(tabs[2]);
 
             #region DOWNLOAD/GET_CODE
             DownloadRequest(driver.Url);
             GetCode(driver);
             #endregion
-            
+
             driver.SwitchTo().Window(tabs[0]);
 
             #region CREATE_ANSWER
