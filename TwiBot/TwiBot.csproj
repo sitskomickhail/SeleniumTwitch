@@ -94,7 +94,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\SpeechRec.cs" />
+    <Compile Include="Model\ThreadWork\RecaptchaV2_Solving.cs" />
+    <Compile Include="Model\ThreadWork\ThreadDriver.cs" />
     <Compile Include="Randomer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -110,8 +111,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\BackWorker.cs" />
-    <Compile Include="Model\ReCaptchaDetect.cs" />
     <Compile Include="Model\Repository\Logs.cs" />
     <Compile Include="Model\Repository\UserRepository.cs" />
     <Compile Include="Model\Serializer.cs" />
