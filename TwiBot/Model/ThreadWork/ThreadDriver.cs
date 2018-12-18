@@ -12,13 +12,16 @@ namespace TwiBot.Model.ThreadWork
         private List<RecaptchaV2_Solving> _captchas;
         private UserRepository _users;
         private int _usersCount;
+        private Thread _testThread;
+        private TestRecaptcha _recaptcha;
 
         public ThreadDriver()
         {
             _threads = new List<Thread>();
             _captchas = new List<RecaptchaV2_Solving>();
             _users = new UserRepository();
-            for (int i = 0; i < _users.GetUser.Count; i++) { _captchas.Add(new RecaptchaV2_Solving()); }
+            _recaptcha = new TestRecaptcha();
+            //for (int i = 0; i < _users.GetUser.Count; i++) { _captchas.Add(new RecaptchaV2_Solving()); }
         }
 
         public void StartDriver_Work(string url, int? count = null)
@@ -28,13 +31,18 @@ namespace TwiBot.Model.ThreadWork
             foreach (var user in _users.GetUser)
             {
                 //TODO: normal count
-                _threads.Add(new Thread(() => _captchas[i++].GoTo_Twitch(url, user.Login, user.Password))); //TODO: Position for download
-                if (i == 3)
-                {
-                    foreach (Thread readyThread in _threads) { readyThread.Start(); }
-                    i = 0;
-                }
+                _threads.Add(new Thread(() => _captchas[i].GoTo_Twitch(url, user.Login, user.Password))); //TODO: Position for download
+                _threads[i].Start();
+                if (i == 1)                
+                    break;
+                i++;
             }
+        }
+
+        public void TestStartDriver_Work(string url)
+        {
+            _testThread = new Thread(() => _recaptcha.GoTo_Twitch(url));
+            _testThread.Start();
         }
 
         public int ReturnThreadsCount() { return _threads.Count; }
@@ -47,7 +55,6 @@ namespace TwiBot.Model.ThreadWork
             }
             foreach (Thread thread in _threads)
             {
-                thread.Join();
                 thread.Abort();
             }
         }

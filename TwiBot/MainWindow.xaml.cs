@@ -33,7 +33,8 @@ namespace TwiBot
             string url = tbUrl.Text;
             if (!String.IsNullOrWhiteSpace(url) && regEx.IsMatch(url))
             {
-                _thread.StartDriver_Work(url);
+                //_thread.StartDriver_Work(url);
+                _thread.TestStartDriver_Work(url);
             }
             else
                 MessageBox.Show("Uncorrect URL-code",
