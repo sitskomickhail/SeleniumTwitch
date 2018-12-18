@@ -18,7 +18,7 @@ namespace TwiBot
         private const string twitchStr = "https://www.twitch.tv/";
         private const string _urlPattern = @"(?<Protocol>\w+):\/\/(?<Domain>[\w@][\w.:@]+)\/?[\w\.?=%&=\-@/$,]*";
         private ThreadDriver _thread;
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -26,7 +26,7 @@ namespace TwiBot
             _thread = new ThreadDriver();
             tbUrl.Text = twitchStr;
         }
-        
+
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             Regex regEx = new Regex(_urlPattern);
@@ -42,7 +42,7 @@ namespace TwiBot
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
-        
+
         private void btnAddBotInfo_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();

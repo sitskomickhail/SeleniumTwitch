@@ -24,6 +24,7 @@ namespace TwiBot.Model.ThreadWork
             //for (int i = 0; i < _users.GetUser.Count; i++) { _captchas.Add(new RecaptchaV2_Solving()); }
         }
 
+        //MULTITHREADING
         public void StartDriver_Work(string url, int? count = null)
         {
             _usersCount = count ?? _users.GetUser.Count;
@@ -39,6 +40,7 @@ namespace TwiBot.Model.ThreadWork
             }
         }
 
+        //WORKING IN 2 THREADS
         public void TestStartDriver_Work(string url)
         {
             _testThread = new Thread(() => _recaptcha.GoTo_Twitch(url));
