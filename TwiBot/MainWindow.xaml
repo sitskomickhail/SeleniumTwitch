@@ -57,8 +57,17 @@
                     BorderBrush="Transparent" 
                     x:Name="btnHelp_Mark"
                     Click="btnHelp_Mark_Click">
-                <Image Source="/Icons/question_mark.png" Width="15" Height="15"/>
+                <Image Source="/Icons/question_mark.png" Width="25" Height="25"/>
             </Button>
+            <Button HorizontalAlignment="Right"
+                    Margin="5"
+                    x:Name="btnClose"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Click="btnClose_Click">
+                <Image Source="/Icons/close.png" Width="25" Height="25"/>
+            </Button>
+              
         </StackPanel>
     </Grid>
 </Window>

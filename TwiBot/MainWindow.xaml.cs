@@ -9,6 +9,8 @@ using TwiBot.Model.Repository;
 using System.Net;
 using System.IO;
 using TwiBot.Model.ThreadWork;
+//test
+using TwiBot.TestCompiles;
 
 namespace TwiBot
 {
@@ -25,6 +27,12 @@ namespace TwiBot
             _users = new UserRepository();
             _thread = new ThreadDriver();
             tbUrl.Text = twitchStr;
+        }
+
+        private void btnStart_ClickTEST(object sender, RoutedEventArgs e)
+        {
+            RecaptchaTest recap = new RecaptchaTest();
+            recap.GoTo_Twitch();
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
@@ -61,6 +69,11 @@ namespace TwiBot
         private void btnHelp_Mark_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Bot info:\nlogin:password:mail");
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

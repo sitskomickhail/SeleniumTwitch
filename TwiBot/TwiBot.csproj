@@ -94,10 +94,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\ThreadWork\RecaptchaV2_Solving.cs" />
-    <Compile Include="Model\ThreadWork\TestRecaptcha.cs" />
+    <Compile Include="Model\DriverWaitExtensions.cs" />
+    <Compile Include="Model\ThreadWork\RecaptchaSolve.cs" />
     <Compile Include="Model\ThreadWork\ThreadDriver.cs" />
     <Compile Include="Randomer.cs" />
+    <Compile Include="TestCompiles\RecaptchaTest.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -184,6 +185,7 @@
     <Content Include="dependencies\sinon\util\xhr_ie.js" />
     <Content Include="dependencies\underscore.js" />
     <Resource Include="Icons\iconfinder_16_940984.png" />
+    <Resource Include="Icons\close.png" />
     <Content Include="mocha-phantomjs\core_extensions.js" />
     <Content Include="tests.html" />
   </ItemGroup>
