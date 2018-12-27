@@ -10,7 +10,6 @@ namespace TwiBot.Model.ThreadWork
     public class ThreadDriver
     {
         private UserRepository _users;
-        private int _usersCount;
         private Thread _testThread;
         private RecaptchaSolve _recaptcha;
 
@@ -28,11 +27,9 @@ namespace TwiBot.Model.ThreadWork
             _testThread.Start();
         }
 
-        //public int ReturnThreadsCount() { return _threads.Count; }
-
         public void Kill_Threads()
         {
-            _testThread.Abort();
+            //_testThread.Abort();
         }
     }
 }

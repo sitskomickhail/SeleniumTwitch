@@ -241,3 +241,5 @@ E:\Projects\TwitchApp\TwiBot\TwiBot\bin\Debug\HttpWebRequestWrapper.xml
 E:\Projects\TwitchApp\TwiBot\TwiBot\bin\Debug\HttpWebRequestWrapper.LowLevel.xml
 E:\Projects\TwitchApp\TwiBot\TwiBot\bin\Debug\NAudio.dll
 E:\Projects\TwitchApp\TwiBot\TwiBot\bin\Debug\NAudio.xml
+E:\Projects\TwitchApp\TwiBot\TwiBot\obj\Debug\Register\RegisterWindow.g.cs
+E:\Projects\TwitchApp\TwiBot\TwiBot\obj\Debug\Register\RegisterWindow.baml

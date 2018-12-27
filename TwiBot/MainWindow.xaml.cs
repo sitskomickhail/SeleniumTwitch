@@ -11,6 +11,7 @@ using System.IO;
 using TwiBot.Model.ThreadWork;
 //test
 using TwiBot.TestCompiles;
+using TwiBot.Register;
 
 namespace TwiBot
 {
@@ -24,6 +25,10 @@ namespace TwiBot
         public MainWindow()
         {
             InitializeComponent();
+            RegisterWindow regWin = new RegisterWindow();
+            regWin.Show();
+            regWin.Activate();
+            regWin.Topmost = true;
             _users = new UserRepository();
             _thread = new ThreadDriver();
             tbUrl.Text = twitchStr;

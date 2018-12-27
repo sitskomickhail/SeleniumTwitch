@@ -12,16 +12,6 @@ namespace TwiBot.Model
             {
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
                 return wait.Until(drv => drv.FindElement(by) ?? null);
-                /*{
-                    /*try
-                    {
-                        drv.FindElement(by);
-                    }
-                    catch
-                    {
-                        throw new NoSuchElementException("No such element");
-                    }
-                });*/
             }
             return driver.FindElement(by);
         }
