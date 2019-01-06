@@ -20,7 +20,7 @@ namespace TwiBot.Model.ThreadWork
         }
 
         [STAThread]
-        public void TestStartDriver_Work(string url)
+        public void StartDriver_Work(string url)
         {
             _testThread = new Thread(() => _recaptcha.GoTo_Twitch(url));
             _testThread.SetApartmentState(ApartmentState.STA);
@@ -29,7 +29,9 @@ namespace TwiBot.Model.ThreadWork
 
         public void Kill_Threads()
         {
-            //_testThread.Abort();
+            _recaptcha.CloseDriver();
+            if (_testThread != null)
+                _testThread.Abort();
         }
     }
 }

@@ -9,9 +9,13 @@ using TwiBot.Model.Repository;
 using System.Net;
 using System.IO;
 using TwiBot.Model.ThreadWork;
+using TwiBot.Data;
 //test
 using TwiBot.TestCompiles;
 using TwiBot.Register;
+//TEST REALSPEAKER
+using OpenQA.Selenium.Chrome;
+using TwiBot.Model;
 
 namespace TwiBot
 {
@@ -21,14 +25,22 @@ namespace TwiBot
         private const string twitchStr = "https://www.twitch.tv/";
         private const string _urlPattern = @"(?<Protocol>\w+):\/\/(?<Domain>[\w@][\w.:@]+)\/?[\w\.?=%&=\-@/$,]*";
         private ThreadDriver _thread;
+        RegisterWindow regWin;
+        private bool TEST = false;
 
         public MainWindow()
         {
             InitializeComponent();
-            RegisterWindow regWin = new RegisterWindow();
-            regWin.Show();
-            regWin.Activate();
-            regWin.Topmost = true;
+            //DBWorker.INSERTDATETIME();
+            if (!DBWorker.IsLicenseKey_Exist())
+            {
+                regWin = new RegisterWindow();
+                regWin.Show();
+                regWin.Activate();
+                regWin.Topmost = true;
+                this.Visibility = Visibility.Hidden;
+            }
+            this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
             _users = new UserRepository();
             _thread = new ThreadDriver();
             tbUrl.Text = twitchStr;
@@ -46,8 +58,7 @@ namespace TwiBot
             string url = tbUrl.Text;
             if (!String.IsNullOrWhiteSpace(url) && regEx.IsMatch(url))
             {
-                //_thread.StartDriver_Work(url);
-                _thread.TestStartDriver_Work(url);
+                _thread.StartDriver_Work(url);
             }
             else
                 MessageBox.Show("Uncorrect URL-code",
@@ -69,6 +80,7 @@ namespace TwiBot
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _thread.Kill_Threads();
+            Application.Current.Shutdown();
         }
 
         private void btnHelp_Mark_Click(object sender, RoutedEventArgs e)
@@ -78,7 +90,6 @@ namespace TwiBot
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
-
         }
     }
 }

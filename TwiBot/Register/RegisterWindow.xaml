@@ -6,15 +6,28 @@
         xmlns:local="clr-namespace:TwiBot.Register"
         mc:Ignorable="d"
         Title="RegisterWindow"
-        Height="100"
+        Height="105"
         Width="300"
         Closing="RegisterWindow_Closing"
+        Background="DarkViolet"
         ResizeMode="NoResize">
     <StackPanel>
-        <Label HorizontalAlignment="Center">Input license key here</Label>
-        <TextBox x:Name="tbKey"/>
+        <!--<Label HorizontalAlignment="Center"
+               Margin="5"
+               Background="White">Input license key here</Label>-->
+        <TextBox x:Name="tbKey"
+                 Margin="5"
+                 Text="Input license key here"
+                 HorizontalAlignment="Center"
+                 Padding="4"
+                 FontSize="12"
+                 GotFocus="tbKey_GotFocus"
+                 LostFocus="tbKey_LostFocus"
+                 MinWidth="130"/>
         <Button x:Name="btnRegister"
+                Margin="5"
                 Content="Use key"
-                IsEnabled="{Binding ElementName=tbKey, Path=Text}"/>
+                IsEnabled="{Binding ElementName=tbKey, Path=Text}"
+                Click="btnRegister_Click"/>
     </StackPanel>
 </Window>

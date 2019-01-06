@@ -1,13 +1,11 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
-using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using TwiBot.Model.Repository;
 
@@ -184,14 +182,15 @@ namespace TwiBot.Model.ThreadWork
                     try
                     {
                         _driver[i].SwitchTo().DefaultContent();
-                        _driver[i].FindElement(By.XPath("/html/body/div[2]/div/div/div/div[1]/div/div/div[3]/div/button")).Click();
+                        _driver[i].FindElement(By.XPath("/html/body/div[2]/div/div/div/div[1]/div/div/div[3]/div/button/span")).Click();
                     }
                     catch { SOLVE_CAPTCHA_SECOND_TIME(_driver[i]); }
                 }
                 catch { SOLVE_CAPTCHA_SECOND_TIME(_driver[i]); }
 
                 _driver[i].SwitchTo().DefaultContent();
-                DriverWaitExtensions.FindElement(_driver[i], By.XPath("/html/body/div[2]/div/div/div/div[1]/div/div/div[3]/div/button"), 5 * _implicitTime).Click();
+
+                DriverWaitExtensions.FindElement(_driver[i], By.XPath("/html/body/div[2]/div/div/div/div[1]/div/div/div[3]/div/button/span"), 5 * _implicitTime).Click();
                 #endregion
                 i++;
                 if ((double)i / _implicitTime == 3)
@@ -278,10 +277,9 @@ namespace TwiBot.Model.ThreadWork
 
             DriverWaitExtensions.FindElement(driver, By.XPath("//*[@id=\"app\"]/main/div/div[1]/div/div/div/ul/span/li[1]/div/div[2]/div/button[2]/div"), 5 * _implicitTime).Click();
 
-
-            //try { DriverWaitExtensions.FindElement(driver, By.ClassName("btn__content"), 15).Click(); }
-            //catch { DriverWaitExtensions.FindElement(driver, By.XPath("//*[@id=\"app\"]/main/div/div[1]/div/div/div/ul/span/li[1]/div/div[2]/div/button[1]/div"), 15).Click(); }
-            DriverWaitExtensions.FindElement(driver, By.XPath("//*[@id=\"app\"]/main/div/div[1]/div/div/div/ul/span/li[1]/div/div[2]/div/button[1]/div"), 15 * _implicitTime).Click();
+            IWebElement topElem = DriverWaitExtensions.FindElement(driver, By.XPath("//*[@id=\"app\"]/main/div/div[1]/div/div/div/ul/span/li[1]/div/div[1]/div[1]"), 5 * _implicitTime);
+            while (driver.Url == "https://realspeaker.net/media")
+                topElem.Click();
 
             DriverWaitExtensions.FindElement(driver, By.XPath("//*[@id=\"app\"]/main/div/div[1]/div/div/span/div/nav/div/button/div"), 5 * _implicitTime).Click();
         }

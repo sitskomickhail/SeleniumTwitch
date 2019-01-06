@@ -62,6 +62,10 @@
     <Reference Include="HttpWebRequestWrapper.LowLevel, Version=2.0.207.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HttpWebRequestWrapper.2.0.207\lib\net45\HttpWebRequestWrapper.LowLevel.dll</HintPath>
     </Reference>
+    <Reference Include="MySql.Data, Version=8.0.13.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="NAudio, Version=1.8.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.1.8.5\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
@@ -109,6 +113,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\DataUtils.cs" />
+    <Compile Include="Data\DBWorker.cs" />
+    <Compile Include="Data\UIDATA\Crypting.cs" />
     <Compile Include="Model\DriverWaitExtensions.cs" />
     <Compile Include="Model\ThreadWork\RecaptchaSolve.cs" />
     <Compile Include="Model\ThreadWork\ThreadDriver.cs" />
@@ -196,6 +203,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Selenium.PhantomJS.WebDriver.2.1.1\build\Selenium.PhantomJS.WebDriver.targets" Condition="Exists('..\packages\Selenium.PhantomJS.WebDriver.2.1.1\build\Selenium.PhantomJS.WebDriver.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

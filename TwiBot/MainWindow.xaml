@@ -67,7 +67,6 @@
                     Click="btnClose_Click">
                 <Image Source="/Icons/close.png" Width="25" Height="25"/>
             </Button>
-              
         </StackPanel>
     </Grid>
 </Window>
