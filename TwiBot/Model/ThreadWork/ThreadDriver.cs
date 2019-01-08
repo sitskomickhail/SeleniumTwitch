@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using TwiBot.Model.Repository;
 
 namespace TwiBot.Model.ThreadWork
@@ -20,9 +17,9 @@ namespace TwiBot.Model.ThreadWork
         }
 
         [STAThread]
-        public void StartDriver_Work(string url)
+        public void StartDriver_Work(string url, int count)
         {
-            _testThread = new Thread(() => _recaptcha.GoTo_Twitch(url));
+            _testThread = new Thread(() => _recaptcha.GoTo_Twitch(url, count));
             _testThread.SetApartmentState(ApartmentState.STA);
             _testThread.Start();
         }

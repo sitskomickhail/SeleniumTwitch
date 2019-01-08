@@ -1,9 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TwiBot.Data
 {
@@ -13,9 +9,9 @@ namespace TwiBot.Data
         {
             string host = "141.8.192.151";
             int port = 3306;
-            string database = "******";
-            string username = "******";
-            string password = "******";
+            string database = "f0265686_TwitchBots_dataBase";
+            string username = "f0265686";
+            string password = "arnefiixtu";
 
             return GetDBConnection(host, port, database, username, password);
         }

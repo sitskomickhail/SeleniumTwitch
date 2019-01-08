@@ -1,21 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Windows;
-using OpenQA.Selenium;
+﻿using System.Windows;
 using System;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Microsoft.Win32;
 using TwiBot.Model.Repository;
-using System.Net;
-using System.IO;
 using TwiBot.Model.ThreadWork;
-using TwiBot.Data;
-//test
 using TwiBot.TestCompiles;
 using TwiBot.Register;
-//TEST REALSPEAKER
-using OpenQA.Selenium.Chrome;
-using TwiBot.Model;
 
 namespace TwiBot
 {
@@ -31,8 +21,8 @@ namespace TwiBot
         public MainWindow()
         {
             InitializeComponent();
-            //DBWorker.INSERTDATETIME();
-            if (!DBWorker.IsLicenseKey_Exist())
+            //if (!DBWorker.IsLicenseKey_Exist())
+            if (TEST)
             {
                 regWin = new RegisterWindow();
                 regWin.Show();
@@ -58,7 +48,9 @@ namespace TwiBot
             string url = tbUrl.Text;
             if (!String.IsNullOrWhiteSpace(url) && regEx.IsMatch(url))
             {
-                _thread.StartDriver_Work(url);
+                int count = 0;
+                Int32.TryParse(tbCount.Text, out count);
+                _thread.StartDriver_Work(url, count);
             }
             else
                 MessageBox.Show("Uncorrect URL-code",
@@ -90,6 +82,7 @@ namespace TwiBot
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
+            _thread.Kill_Threads();
         }
     }
 }

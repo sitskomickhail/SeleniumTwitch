@@ -27,6 +27,7 @@
                       Margin="0, 0, 0, 5"
                       x:Name="cbCount"
                       SelectedIndex="0">
+                <ComboBoxItem Content="ALL BOTS"/>
                 <ComboBoxItem Content="50"/>
                 <ComboBoxItem Content="100"/>
                 <ComboBoxItem Content="150"/>

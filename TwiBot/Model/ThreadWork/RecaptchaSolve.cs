@@ -41,9 +41,9 @@ namespace TwiBot.Model.ThreadWork
             }
         }
 
-        public void GoTo_Twitch(string url)
+        public void GoTo_Twitch(string url, int count)
         {
-            int i = 0;
+            int i = 1;
             _implicitTime = 1;
             foreach (var user in _users.GetUser)
             {
@@ -193,6 +193,8 @@ namespace TwiBot.Model.ThreadWork
                 DriverWaitExtensions.FindElement(_driver[i], By.XPath("/html/body/div[2]/div/div/div/div[1]/div/div/div[3]/div/button/span"), 5 * _implicitTime).Click();
                 #endregion
                 i++;
+                if (i > count && count != 0)
+                    break;
                 if ((double)i / _implicitTime == 3)
                     _implicitTime++;
                 //Screenshot ss = ((ITakesScreenshot)_driver[i]).GetScreenshot();
